@@ -1,0 +1,109 @@
+PRD – Aplicación de Control Horario (v0.1)
+Versión: 0.1 – MVP
+Fecha: 22 de junio de 2025
+Responsable técnico: Enzo
+Tecnologías: Laravel (backend), Supabase (self-hosted), React + Vite + Tailwind + shadcn/ui (frontend)
+
+1. Objetivo del MVP
+Desarrollar una primera versión funcional de una aplicación interna para el registro horario de empleados, enfocada en el flujo de fichajes y pausas, con una interfaz sencilla y moderna. El sistema será completo, con autenticación real, estructura de base de datos, lógica de negocio y frontend SPA.
+
+2. Alcance funcional
+Código	Funcionalidad	Detalle
+F-1	Autenticación	Sistema de login con Laravel Sanctum. No habrá opción de registro desde la UI. Los usuarios serán añadidos manualmente en Supabase por un administrador, con nombre, email y contraseña hasheada.
+F-2	Fichaje de entrada y salida	El usuario podrá fichar entrada o salida dependiendo de su estado actual. Solo se permite una entrada y una salida por día.
+F-3	Pausa café	Permite una pausa café al día. Si la duración es ≤ 20 min, se considera tiempo trabajado. El exceso se descuenta.
+F-4	Pausa comida	Similar a la pausa café, pero todo el tiempo registrado se descuenta.
+F-5	Cálculo diario	El sistema calcula automáticamente las horas efectivas trabajadas y la diferencia respecto a una jornada teórica de 8h.
+F-6	Historial – Vista lista	Tabla con registros de fichajes del usuario: fecha, entrada, salida, pausas, horas trabajadas y diferencias.
+F-7	Historial – Vista calendario	Vista mensual con badge de horas trabajadas por día. Al hacer clic se accede al detalle.
+F-8	Asignación de jornada teórica	Todos los usuarios nuevos tienen una jornada fija de 8h/día, configurada en la tabla horas_teoricas de Supabase.
+
+3. Stack tecnológico
+Capa	Herramienta	Detalles
+Frontend	React + Vite + TypeScript + Tailwind + shadcn/ui	SPA moderna y minimalista
+Backend API	Laravel 11 + Sanctum	API REST protegida por token
+Base de datos	Supabase self-hosted	Usado como motor PostgreSQL, panel de administración y gestión de usuarios
+Infraestructura local	Docker Compose	Incluye Laravel, Supabase (PostgreSQL, Studio), y Vite Dev Server
+
+4. Arquitectura técnica
+┌────────────────────────┐
+│  React SPA (Vite)      │
+│  Tailwind + shadcn/ui  │
+└────────────────────────┘
+           │
+           ▼
+┌────────────────────────┐
+│ Laravel API (Sanctum)  │
+│ Auth + lógica fichajes │
+└────────────────────────┘
+           │
+           ▼
+┌────────────────────────────┐
+│ Supabase self-hosted       │
+│ PostgreSQL + Auth + Studio │
+└────────────────────────────┘
+
+5. Modelo de datos (Supabase)
+users
+id: bigint
+email: string
+password: string (hash Bcrypt)
+name: string
+created_at: timestamp
+
+horas_teoricas
+user_id: bigint (FK)
+daily_hours: numeric (default: 8.0)
+
+clocking_days
+id: bigint
+user_id: bigint (FK)
+work_date: date
+clock_in_at: timestamp
+clock_out_at: timestamp
+coffee_start: timestamp
+coffee_end: timestamp
+lunch_start: timestamp
+lunch_end: timestamp
+worked_seconds: integer
+overtime_seconds: integer
+
+6. Endpoints API (Laravel)
+Autenticación
+POST /api/login – Devuelve token Sanctum
+GET /api/me – Devuelve el usuario autenticado
+
+Fichajes y pausas
+GET /api/clocking-days
+POST /api/clocking-days/:date/clock-in
+POST /api/clocking-days/:date/clock-out
+POST /api/clocking-days/:date/coffee-start
+POST /api/clocking-days/:date/coffee-end
+POST /api/clocking-days/:date/lunch-start
+POST /api/clocking-days/:date/lunch-end
+
+7. Interfaz de usuario
+Vistas principales
+Ruta	Contenido
+/login	Formulario limpio con campos de email/contraseña.
+/dashboard	Panel con botones: fichar entrada/salida, iniciar/finalizar pausas. Estado visible y contador de tiempo trabajado.
+/historial	Tabs: vista lista y vista calendario. Calendario con resumen diario de horas trabajadas. Drawer o modal con detalles al hacer clic en un día.
+
+Diseño UI
+Layout centrado max-w-screen-xl
+Tailwind + shadcn/ui: tarjetas, badges, botones, tablas, calendarios
+Animaciones suaves con framer-motion
+Tema visual moderno, claro y profesional
+
+8. Supuestos y limitaciones
+Los usuarios se gestionan manualmente desde el panel de Supabase Studio.
+Solo se permite un registro de entrada/salida y una pausa café y comida por día.
+Todos los usuarios tienen jornada teórica fija de 8h.
+El sistema está pensado inicialmente para un único huso horario: Europa/Madrid.
+
+9. Criterios de aceptación
+Autenticación funcional vía Sanctum y tokens.
+Fichaje completo con cálculo de horas y pausas correcto.
+Vistas funcionales: dashboard y historial (lista + calendario).
+Supabase y Laravel conectados correctamente.
+El sistema puede ejecutarse íntegramente con docker compose. 

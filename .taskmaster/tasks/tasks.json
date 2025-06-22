@@ -1,0 +1,221 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository",
+        "description": "Initialize the project repository with the necessary structure for Laravel, React, and Supabase.",
+        "details": "Create a new Git repository. Set up the Laravel backend in a 'backend' directory and the React frontend in a 'frontend' directory. Include a README file with project setup instructions.",
+        "testStrategy": "Verify the repository structure and ensure that both backend and frontend can be built independently.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Git Repository",
+            "description": "Create a new Git repository for the project.",
+            "dependencies": [],
+            "details": "Run 'git init' in the project root directory. Add a .gitignore file with common exclusions for Laravel and React projects.",
+            "status": "pending",
+            "testStrategy": "Verify repository initialization by checking '.git' directory exists and '.gitignore' file is present."
+          },
+          {
+            "id": 2,
+            "title": "Set Up Laravel Backend",
+            "description": "Install and configure Laravel in the 'backend' directory.",
+            "dependencies": [
+              1
+            ],
+            "details": "Run 'composer create-project laravel/laravel backend' to create Laravel project. Configure necessary environment variables in '.env' file. Ensure database configuration is set up for future Supabase integration.",
+            "status": "pending",
+            "testStrategy": "Verify Laravel installation by running 'php artisan serve' and checking the default Laravel welcome page."
+          },
+          {
+            "id": 3,
+            "title": "Set Up React Frontend",
+            "description": "Create React application in the 'frontend' directory.",
+            "dependencies": [
+              1
+            ],
+            "details": "Run 'npx create-react-app frontend' to initialize React project. Install necessary dependencies like axios for API calls. Configure proxy to backend if needed.",
+            "status": "pending",
+            "testStrategy": "Verify React installation by running 'npm start' and checking the default React page loads."
+          },
+          {
+            "id": 4,
+            "title": "Configure Project Structure",
+            "description": "Organize the directory structure and ensure proper separation between frontend and backend.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create a clear directory structure with 'backend' and 'frontend' folders at root level. Add any shared configuration files at root level if needed. Ensure proper .gitignore for both projects.",
+            "status": "pending",
+            "testStrategy": "Verify directory structure matches expected layout and both projects can run independently."
+          },
+          {
+            "id": 5,
+            "title": "Create Project Documentation",
+            "description": "Add README and setup instructions for the project.",
+            "dependencies": [
+              4
+            ],
+            "details": "Create a comprehensive README.md at root level with: project description, setup instructions for both frontend and backend, environment requirements, and any initial configuration steps. Include basic contribution guidelines.",
+            "status": "pending",
+            "testStrategy": "Verify README contains all necessary information by having another team member follow the setup instructions."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Configure Docker Compose",
+        "description": "Set up Docker Compose to run Laravel, Supabase, and Vite Dev Server.",
+        "details": "Create a docker-compose.yml file that includes services for Laravel, Supabase, and Vite. Ensure that the services can communicate with each other and expose necessary ports.",
+        "testStrategy": "Run 'docker-compose up' and check that all services start without errors and are accessible.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement User Authentication with Laravel Sanctum",
+        "description": "Develop the authentication system using Laravel Sanctum for secure login.",
+        "details": "Set up Sanctum in Laravel. Create the /api/login and /api/me endpoints. Implement user authentication logic and ensure password hashing with Bcrypt.",
+        "testStrategy": "Test the login endpoint with valid and invalid credentials. Ensure that the token is returned and can be used to access the /api/me endpoint.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Create Database Schema in Supabase",
+        "description": "Define the database schema for users, clocking_days, and horas_teoricas in Supabase.",
+        "details": "Use Supabase Studio to create tables: users, clocking_days, and horas_teoricas with the specified fields and relationships.",
+        "testStrategy": "Verify that the tables are created correctly and that the relationships are established as per the PRD.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Develop Clocking In and Out Functionality",
+        "description": "Implement the logic for users to clock in and out, ensuring only one entry and exit per day.",
+        "details": "Create the POST /api/clocking-days/:date/clock-in and POST /api/clocking-days/:date/clock-out endpoints in Laravel. Implement validation to ensure only one clock-in and clock-out per day.",
+        "testStrategy": "Test the clock-in and clock-out endpoints for valid and invalid scenarios, ensuring correct data is saved in the database.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Coffee and Lunch Break Logic",
+        "description": "Add functionality for users to register coffee and lunch breaks, with specific rules for time calculation.",
+        "details": "Create the POST /api/clocking-days/:date/coffee-start, /coffee-end, /lunch-start, and /lunch-end endpoints. Implement logic to calculate worked seconds and overtime seconds based on breaks.",
+        "testStrategy": "Test the break endpoints to ensure they correctly calculate time worked and apply the rules specified in the PRD.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Calculate Daily Worked Hours",
+        "description": "Implement automatic calculation of effective worked hours and differences from theoretical hours.",
+        "details": "Create a function in Laravel that calculates the total worked seconds and compares it to the theoretical hours defined in horas_teoricas. Update the clocking_days table accordingly.",
+        "testStrategy": "Verify the calculation logic with various scenarios to ensure accuracy in worked hours and overtime.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Develop User History View - List",
+        "description": "Create a user interface for displaying a list of clocking records with relevant details.",
+        "details": "Implement the /historial route in React to display a table of clocking records, including date, entry, exit, pauses, and worked hours.",
+        "testStrategy": "Ensure that the list view correctly fetches and displays data from the API and handles empty states gracefully.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Develop User History View - Calendar",
+        "description": "Implement a calendar view for users to see their clocking records by month.",
+        "details": "Create a calendar component in React that displays badges for hours worked each day. Implement click functionality to show detailed records for each day.",
+        "testStrategy": "Test the calendar view to ensure it accurately reflects the data from the API and allows navigation to detailed views.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Design User Interface with Tailwind and shadcn/ui",
+        "description": "Create a modern and responsive UI using Tailwind CSS and shadcn/ui components.",
+        "details": "Utilize Tailwind CSS for styling and shadcn/ui for UI components. Ensure the design is consistent with the PRD specifications and is responsive across devices.",
+        "testStrategy": "Conduct usability testing to ensure the UI is intuitive and meets design specifications.",
+        "priority": "medium",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Testing Strategy",
+        "description": "Develop a comprehensive testing strategy for both backend and frontend components.",
+        "details": "Set up PHPUnit for backend testing and Jest for frontend testing. Write unit and integration tests for critical functionalities, including authentication, clocking, and UI components.",
+        "testStrategy": "Run all tests and ensure they pass successfully, covering edge cases and error handling.",
+        "priority": "high",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Deploy Application",
+        "description": "Prepare and deploy the application using Docker Compose for local and production environments.",
+        "details": "Create deployment scripts and documentation for running the application in production. Ensure all services are configured correctly for deployment.",
+        "testStrategy": "Deploy the application and verify that all functionalities work as expected in the production environment.",
+        "priority": "high",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-22T13:52:23.878Z",
+      "updated": "2025-06-22T13:52:23.878Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
