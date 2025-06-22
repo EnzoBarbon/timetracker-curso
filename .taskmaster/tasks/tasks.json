@@ -77,7 +77,7 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -91,7 +91,61 @@
           2
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install and Configure Laravel Sanctum",
+            "description": "Install the Laravel Sanctum package, publish its configuration, and run the necessary database migrations to enable Sanctum in the Laravel project.",
+            "dependencies": [],
+            "details": "Use Composer to require Sanctum, publish the Sanctum configuration file, and run migrations to create the required tables.",
+            "status": "done",
+            "testStrategy": "Verify that the Sanctum package is installed, configuration files are present, and the database contains the Sanctum tables."
+          },
+          {
+            "id": 2,
+            "title": "Set Up Sanctum Middleware and API Authentication Guard",
+            "description": "Configure Sanctum middleware and ensure the API authentication guard is set up for protecting API routes.",
+            "dependencies": [
+              1
+            ],
+            "details": "Update the 'api' middleware group in Kernel.php to include Sanctum middleware and configure the guard in config/auth.php.",
+            "status": "pending",
+            "testStrategy": "Check that protected routes require authentication and unauthorized requests are rejected."
+          },
+          {
+            "id": 3,
+            "title": "Create Authentication Controller and Logic",
+            "description": "Develop an AuthController to handle user login, token generation, and user retrieval logic using Sanctum.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement methods for login (issuing tokens), and retrieving the authenticated user. Ensure password verification uses Bcrypt.",
+            "status": "pending",
+            "testStrategy": "Test login with valid and invalid credentials, and confirm tokens are generated and passwords are securely hashed."
+          },
+          {
+            "id": 4,
+            "title": "Define /api/login and /api/me API Endpoints",
+            "description": "Set up API routes for user login and retrieving the authenticated user's information.",
+            "dependencies": [
+              3
+            ],
+            "details": "Add POST /api/login and GET /api/me routes in routes/api.php, linking them to the appropriate controller methods.",
+            "status": "pending",
+            "testStrategy": "Send requests to /api/login and /api/me endpoints and verify correct responses and authentication behavior."
+          },
+          {
+            "id": 5,
+            "title": "Test and Document the Authentication Workflow",
+            "description": "Thoroughly test the authentication endpoints and document the expected request/response formats and error handling.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use tools like Postman to test all authentication flows, and create documentation for API consumers.",
+            "status": "pending",
+            "testStrategy": "Ensure all endpoints work as intended, tokens are issued and validated, and documentation is clear and accurate."
+          }
+        ]
       },
       {
         "id": 4,
@@ -214,7 +268,7 @@
     ],
     "metadata": {
       "created": "2025-06-22T13:52:23.878Z",
-      "updated": "2025-06-22T14:15:39.246Z",
+      "updated": "2025-06-22T18:39:41.825Z",
       "description": "Tasks for master context"
     }
   }

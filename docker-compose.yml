@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - "DB_CONNECTION=pgsql"
+      - "DB_HOST=host.docker.internal" # Use this for connecting to services on the host from a container
+      - "DB_PORT=54322"
+      - "DB_DATABASE=postgres"
+      - "DB_USERNAME=postgres"
+      - "DB_PASSWORD=postgres"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+# Note: The Supabase services are managed by the Supabase CLI (`supabase start`)
+# and are not included here to avoid conflicts. This file is for your
+# application's services.

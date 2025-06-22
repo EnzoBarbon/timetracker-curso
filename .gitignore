@@ -56,3 +56,12 @@ logs
 
 # OS specific
 .DS_Store
+
+# Added by Task Master AI
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+# Task files
+tasks.json
+tasks/ 
