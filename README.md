@@ -4,7 +4,7 @@ This is a simple, internal time tracking application built for a course. It feat
 
 ## Tech Stack
 
-- **Backend**: Laravel 11
+- **Backend**: Laravel 12
 - **Frontend**: React, Vite, TypeScript, Tailwind CSS, shadcn/ui
 - **Database**: Supabase (self-hosted PostgreSQL)
 - **Infrastructure**: Docker Compose

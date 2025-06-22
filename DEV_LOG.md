@@ -6,7 +6,7 @@ This document tracks the development progress, architectural decisions, and impo
 
 - **Stack:**
   - **Frontend:** React + Vite + TypeScript (running on port 5173)
-  - **Backend:** Laravel (PHP 8.2)
+  - **Backend:** Laravel 12 (PHP 8.2)
   - **Database:** Supabase (PostgreSQL)
   - **Containerization:** Docker Compose
 - **Architecture:**
