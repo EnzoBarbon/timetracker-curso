@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- **Update the Development Log**
+  - After completing a significant task or a set of related subtasks, you **must** update the `DEV_LOG.md` file.
+  - The log file is located at `[DEV_LOG.md](mdc:DEV_LOG.md)`.
+
+- **What to Document:**
+  - **New Features:** Briefly describe any new features that were completed.
+  - **Key Decisions:** Record the "why" behind important decisions. For example: "We chose to use Supabase Migrations for schema management to keep it in version control."
+  - **Important Information:** Add any critical information that a developer would need to know, such as new test user credentials, environment variables, or complex setup steps.
+
+- **Example Update:**
+  ```markdown
+  ## Clock-in/Out Functionality
+  - **Status:** Completed
+  - **Details:** Created the `ClockingController` and API endpoints (`POST /api/clocking-days/{date}/clock-in` and `POST /api/clocking-days/{date}/clock-out`) to handle user time tracking.
+  - **Architectural Note:** Implemented validation logic directly in the controller to prevent duplicate clock-ins for the same day. Use this controllers when changing the clock in functionality.
+  ```

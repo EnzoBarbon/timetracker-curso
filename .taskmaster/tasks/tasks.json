@@ -90,7 +90,7 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -109,7 +109,7 @@
               1
             ],
             "details": "Update the 'api' middleware group in Kernel.php to include Sanctum middleware and configure the guard in config/auth.php.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Check that protected routes require authentication and unauthorized requests are rejected."
           },
           {
@@ -120,7 +120,7 @@
               2
             ],
             "details": "Implement methods for login (issuing tokens), and retrieving the authenticated user. Ensure password verification uses Bcrypt.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test login with valid and invalid credentials, and confirm tokens are generated and passwords are securely hashed."
           },
           {
@@ -131,7 +131,7 @@
               3
             ],
             "details": "Add POST /api/login and GET /api/me routes in routes/api.php, linking them to the appropriate controller methods.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send requests to /api/login and /api/me endpoints and verify correct responses and authentication behavior."
           },
           {
@@ -142,7 +142,7 @@
               4
             ],
             "details": "Use tools like Postman to test all authentication flows, and create documentation for API consumers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Ensure all endpoints work as intended, tokens are issued and validated, and documentation is clear and accurate."
           }
         ]
@@ -157,7 +157,7 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -268,7 +268,7 @@
     ],
     "metadata": {
       "created": "2025-06-22T13:52:23.878Z",
-      "updated": "2025-06-22T18:39:41.825Z",
+      "updated": "2025-06-22T19:15:32.440Z",
       "description": "Tasks for master context"
     }
   }
