@@ -1,0 +1,478 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TimeTrack - Aplicación de Control Horario
+
+
+## 📋 IMPORTANTE: Documento de Referencia Principal
+**Para cualquier duda sobre requisitos, funcionalidades o decisiones de diseño, siempre consultar el PRD oficial en `.taskmaster/docs/prd.txt`**
+
+## Visión General del Proyecto
+
+### Objetivo
+Desarrollar una aplicación interna para el registro horario de empleados con funcionalidades de fichaje, pausas y cálculo automático de horas trabajadas. El MVP se centra en una interfaz sencilla y moderna con autenticación real y gestión completa de jornadas laborales.
+
+### Stack Tecnológico
+- **Frontend**: React + Vite + TypeScript + Tailwind CSS + shadcn/ui
+- **Backend**: Laravel 12 + Sanctum (API REST)
+- **Base de datos**: Supabase self-hosted (PostgreSQL)
+- **Infraestructura**: Docker Compose
+
+## Principios de Desarrollo
+
+### 1. Arquitectura y Estructura
+- **Frontend**: SPA en React ubicada en `/frontend`
+- **Backend**: API REST con Laravel en `/backend`
+- **Base de datos**: PostgreSQL gestionada por Supabase
+- **Autenticación**: Token-based con Laravel Sanctum
+- **Estado**: Context API o Zustand para gestión de estado global
+
+### 2. Convenciones de Código
+
+#### Backend (Laravel)
+```php
+// Controladores: PascalCase con sufijo Controller
+class ClockingController extends Controller
+{
+    // Métodos siguiendo convención RESTful
+    public function clockIn(Request $request, string $date)
+    {
+        // Validación explícita
+        $validated = $request->validate([
+            'date' => 'required|date_format:Y-m-d'
+        ]);
+        
+        // Lógica de negocio clara y documentada
+    }
+}
+
+// Modelos con relaciones bien definidas
+class ClockingDay extends Model
+{
+    protected $fillable = [
+        'user_id', 'work_date', 'clock_in_at', 'clock_out_at',
+        'coffee_start', 'coffee_end', 'lunch_start', 'lunch_end',
+        'worked_seconds', 'overtime_seconds'
+    ];
+    
+    protected $casts = [
+        'work_date' => 'date',
+        'clock_in_at' => 'datetime',
+        // ...
+    ];
+}
+```
+
+#### Frontend (React + TypeScript)
+```typescript
+// Interfaces claras para tipos
+interface ClockingDay {
+  id: number;
+  user_id: number;
+  work_date: string;
+  clock_in_at: string | null;
+  clock_out_at: string | null;
+  coffee_start: string | null;
+  coffee_end: string | null;
+  lunch_start: string | null;
+  lunch_end: string | null;
+  worked_seconds: number;
+  overtime_seconds: number;
+}
+
+// Componentes funcionales con TypeScript
+const Dashboard: React.FC = () => {
+  const [clockingStatus, setClockingStatus] = useState<ClockingStatus>();
+  
+  // Hooks personalizados para lógica reutilizable
+  const { clockIn, clockOut, isLoading } = useClocking();
+  
+  return (
+    <div className="max-w-screen-xl mx-auto p-6">
+      {/* Usar componentes de shadcn/ui */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Panel de Control</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Contenido */}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+```
+
+### 3. Modelo de Datos
+
+#### Tablas Principales
+- **users**: Gestionados por Laravel, autenticación con Sanctum
+- **horas_teoricas**: Jornada teórica por usuario (default 8h)
+- **clocking_days**: Registro diario de fichajes y pausas
+
+#### Reglas de Negocio
+- Solo un registro entrada/salida por día
+- Una pausa café por día (≤20 min cuenta como trabajo)
+- Una pausa comida por día (todo se descuenta)
+- Cálculo automático de horas trabajadas vs teóricas
+
+### 4. API Endpoints
+
+```
+POST   /api/login                              # Autenticación
+GET    /api/me                                 # Usuario actual
+
+GET    /api/clocking-days                      # Historial
+POST   /api/clocking-days/{date}/clock-in      # Fichar entrada
+POST   /api/clocking-days/{date}/clock-out     # Fichar salida
+POST   /api/clocking-days/{date}/coffee-start  # Iniciar pausa café
+POST   /api/clocking-days/{date}/coffee-end    # Finalizar pausa café
+POST   /api/clocking-days/{date}/lunch-start   # Iniciar pausa comida
+POST   /api/clocking-days/{date}/lunch-end     # Finalizar pausa comida
+```
+
+### 5. Interfaz de Usuario
+
+#### Rutas Principales
+- `/login`: Formulario de autenticación minimalista
+- `/dashboard`: Panel principal con acciones de fichaje
+- `/historial`: Vista lista y calendario de registros
+
+#### Componentes UI (shadcn/ui)
+```tsx
+// Usar componentes predefinidos
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar } from "@/components/ui/calendar"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+// Tema consistente
+<Button variant="default" size="lg">
+  Fichar Entrada
+</Button>
+
+<Badge variant={overtime > 0 ? "success" : "destructive"}>
+  {formatHours(overtime)}
+</Badge>
+```
+
+
+### 9. Docker y Desarrollo Local
+
+```yaml
+# docker-compose.yml ya configurado con:
+- backend (Laravel + PHP-FPM)
+- frontend (Vite dev server)
+- nginx (proxy reverso)
+- supabase (PostgreSQL + Studio)
+```
+
+## Comandos Útiles
+
+```bash
+# Backend
+docker exec -it timetrack-curso-backend-1 php artisan migrate
+docker exec -it timetrack-curso-backend-1 php artisan tinker
+docker exec -it timetrack-curso-backend-1 php artisan make:controller ClockingController
+
+# Frontend
+cd frontend && npm run dev
+cd frontend && npm run build
+
+# Docker
+docker-compose up -d
+docker-compose logs -f backend
+```
+
+## Consideraciones Especiales
+
+
+- **Zona horaria**: Europa/Madrid por defecto
+- **Usuarios**: Gestión manual via Supabase Studio
+- **Jornada**: 8 horas fijas para todos
+- **UI**: Diseño limpio, moderno y profesional
+
+
+
+
+# Timetrack Endpoint Development Process
+
+This rule documents the complete process for creating new clocking endpoints in the timetrack application, based on the successful implementation of clock-in/clock-out and break functionality.
+
+## **Database Schema Setup**
+
+### **Migration Strategy**
+- **Check existing tables first**: Use `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "\d table_name"` to inspect current schema
+- **Laravel + Supabase integration**: We use Laravel migrations but run against Supabase PostgreSQL
+- **Key fields for clocking_days table**:
+  ```sql
+  user_id BIGINT (references users.id from Laravel, not auth.users UUID)
+  date DATE
+  check_in TIME
+  check_out TIME  
+  coffee_break_in TIME
+  coffee_break_out TIME
+  lunch_break_in TIME
+  lunch_break_out TIME
+  ```
+- **Unique constraints**: `UNIQUE(user_id, date)` to prevent duplicate entries per user per day
+
+### **Schema Updates**
+```sql
+-- Add new columns for breaks
+ALTER TABLE clocking_days 
+ADD COLUMN coffee_break_in TIME,
+ADD COLUMN coffee_break_out TIME,
+ADD COLUMN lunch_break_in TIME,
+ADD COLUMN lunch_break_out TIME;
+```
+
+## **Controller Implementation Pattern**
+
+### **Standard Method Structure**
+```php
+public function methodName(Request $request, $date)
+{
+    // 1. Authentication validation
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // 2. Date format validation
+    $validator = Validator::make(['date' => $date], [
+        'date' => 'required|date_format:Y-m-d'
+    ]);
+    if ($validator->fails()) {
+        return response()->json(['error' => 'Invalid date format. Use YYYY-MM-DD'], 400);
+    }
+
+    // 3. Business logic validation (check prerequisites)
+    $clockingDay = ClockingDay::where('user_id', $user->id)
+        ->where('date', $date)
+        ->first();
+
+    // 4. Specific validations per endpoint type
+    // 5. Update/create record
+    // 6. Return structured JSON response
+}
+```
+
+### **Required Imports**
+```php
+use App\Models\ClockingDay;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+```
+
+## **Route Registration**
+
+### **API Routes Pattern**
+```php
+// In backend/routes/api.php
+Route::middleware('auth:sanctum')->post('/clocking-days/{date}/clock-in', [ClockingController::class, 'clockIn']);
+Route::middleware('auth:sanctum')->post('/clocking-days/{date}/clock-out', [ClockingController::class, 'clockOut']);
+Route::middleware('auth:sanctum')->post('/clocking-days/{date}/coffee-break-in', [ClockingController::class, 'coffeeBreakIn']);
+Route::middleware('auth:sanctum')->post('/clocking-days/{date}/coffee-break-out', [ClockingController::class, 'coffeeBreakOut']);
+```
+
+**Key points:**
+- All clocking endpoints require `auth:sanctum` middleware
+- Use RESTful URL pattern: `/clocking-days/{date}/action`
+- Controller methods follow camelCase naming
+
+## **Environment Setup & Docker**
+
+### **Supabase Integration**
+```yaml
+# In docker-compose.yml, backend service environment
+- "SUPABASE_URL=http://host.docker.internal:54321"
+- "SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+- "SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### **Database Connection**
+```yaml
+- "DB_HOST=host.docker.internal"
+- "DB_PORT=54322"  
+- "DB_DATABASE=postgres"
+- "DB_USERNAME=postgres"
+- "DB_PASSWORD=postgres"
+```
+
+**Important**: After adding environment variables, restart containers with `docker-compose down && docker-compose up -d`
+
+## **Test User Configuration**
+
+### **Default Test User**
+- **Email**: `test@test.com`
+- **Password**: `test`
+- **User ID**: `1` (in Laravel users table)
+- **Created via**: Laravel seeder or manual database insertion
+
+### **Verify Test User**
+```sql
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "SELECT * FROM users WHERE email = 'test@test.com'"
+```
+
+## **Testing Process with curl**
+
+### **Step 1: Authentication**
+```bash
+# Get authentication token
+TOKEN=$(curl -s -X POST "http://localhost:8000/api/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@test.com", "password": "test"}' | \
+  jq -r '.token')
+
+echo "Token: $TOKEN"
+```
+
+### **Step 2: Test Happy Path**
+```bash
+# Clock-in
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/clock-in" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Clock-out  
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/clock-out" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Coffee break in
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/coffee-break-in" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Coffee break out
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/coffee-break-out" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### **Step 3: Test Edge Cases**
+
+#### **Duplicate Prevention**
+```bash
+# Try duplicate clock-in (should return 409)
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/clock-in" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+#### **Invalid Date Format**
+```bash
+# Invalid date (should return 400)
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-32/clock-in" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+#### **Missing Prerequisites**
+```bash
+# Clock-out without clock-in (should return 404)
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-30/clock-out" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Coffee break without clock-in (should return 404)
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-30/coffee-break-in" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+#### **No Authentication**
+```bash
+# Without token (should return 401 or redirect to login)
+curl -X POST "http://localhost:8000/api/clocking-days/2025-06-24/clock-in" \
+  -H "Content-Type: application/json"
+```
+
+### **Step 4: Verify Database**
+```bash
+# Check records in database
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+  -c "SELECT * FROM clocking_days ORDER BY created_at DESC"
+```
+
+## **Expected HTTP Status Codes**
+
+- **200**: Successful clock-out, break operations (updates)
+- **201**: Successful clock-in (creation)
+- **400**: Invalid date format
+- **401**: Unauthorized (missing/invalid token)
+- **404**: Missing prerequisite (no clock-in for clock-out)
+- **409**: Conflict (duplicate operation)
+- **500**: Server error (database issues, etc.)
+
+## **Common Debugging Steps**
+
+### **Check Docker Logs**
+```bash
+# Backend container logs
+docker logs timetrack-curso-backend-1 --tail 20
+
+# Nginx container logs  
+docker logs timetrack-curso-nginx-1 --tail 10
+```
+
+### **Verify Environment Variables**
+```bash
+# Check if Supabase env vars are loaded
+docker exec timetrack-curso-backend-1 env | grep SUPABASE
+```
+
+### **Test Database Connectivity**
+```bash
+# From within backend container
+docker exec timetrack-curso-backend-1 php artisan tinker --execute="DB::select('SELECT 1')"
+```
+
+## **Response Format Standards**
+
+### **Success Response**
+```json
+{
+  "message": "Successfully clocked in",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "date": "2025-06-24T00:00:00.000000Z",
+    "check_in": "2025-06-24T14:46:26.000000Z",
+    "check_out": null
+  }
+}
+```
+
+### **Error Response**
+```json
+{
+  "error": "Already clocked in for this date"
+}
+```
+
+## **Files to Review for Reference**
+
+
+- **Controller**: [ClockingController.php](mdc:backend/app/Http/Controllers/ClockingController.php)
+- **Routes**: [api.php](mdc:backend/routes/api.php)
+- **Model**: [ClockingDay.php](mdc:backend/app/Models/ClockingDay.php)
+- **Migration**: [create_clocking_days_table.php](mdc:backend/database/migrations/2025_06_24_144449_create_clocking_days_table.php)
+- **Docker Config**: [docker-compose.yml](mdc:docker-compose.yml)
+
+
+## **Business Logic Validation Rules**
+
+1. **Clock-in**: Requires authentication, no existing clock-in for date
+2. **Clock-out**: Requires clock-in first, no existing clock-out
+3. **Coffee/Lunch Break In**: Requires clock-in first, no existing break-in of same type
+4. **Coffee/Lunch Break Out**: Requires corresponding break-in first, no existing break-out
+5. **All endpoints**: Validate date format (Y-m-d), require authentication
+
+This process ensures consistent, reliable endpoint development with comprehensive testing coverage.

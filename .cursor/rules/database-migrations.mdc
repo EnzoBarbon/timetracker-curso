@@ -1,0 +1,122 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Database Migration Guidelines
+
+**Always review existing migrations before creating new ones to ensure consistency and avoid conflicts.**
+
+## Migration Locations
+
+- **Laravel Backend**: [backend/database/migrations/](mdc:backend/database/migrations)
+- **Supabase**: [supabase/migrations/](mdc:supabase/migrations)
+
+## Before Creating New Migrations
+
+### 1. Review Existing Migrations
+Always examine existing migrations to understand:
+- **Naming conventions** used in the project
+- **Table relationships** and foreign key patterns
+- **Data types** and constraints already established
+- **Indexing strategies** implemented
+
+### 2. Check Current Schema
+Review these key existing migrations:
+- [Users table](mdc:backend/database/migrations/0001_01_01_000000_create_users_table.php) - Core user structure
+- [Clocking Days table](mdc:backend/database/migrations/2025_06_24_144449_create_clocking_days_table.php) - Time tracking functionality
+- [Personal Access Tokens](mdc:backend/database/migrations/2025_06_22_183934_create_personal_access_tokens_table.php) - API authentication
+
+## Laravel Migration Best Practices
+
+### ✅ DO:
+- **Follow existing patterns** from [ClockingDay migration](mdc:backend/database/migrations/2025_06_24_144449_create_clocking_days_table.php)
+- **Use descriptive names**: `create_table_name_table.php` or `add_column_to_table_table.php`
+- **Add proper foreign key constraints** with `->constrained()->onDelete('cascade')`
+- **Include unique constraints** where needed: `$table->unique(['user_id', 'date'])`
+- **Add indexes** for commonly queried columns
+- **Include timestamps** with `$table->timestamps()`
+- **Write proper `down()` methods** for rollbacks
+
+```php
+// ✅ Good example from existing migration
+Schema::create('clocking_days', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+    $table->date('date');
+    $table->time('check_in')->nullable();
+    $table->time('check_out')->nullable();
+    $table->text('notes')->nullable();
+    $table->timestamps();
+    
+    $table->unique(['user_id', 'date']);
+});
+```
+
+### ❌ DON'T:
+- Create migrations without checking existing table structures
+- Use inconsistent data types for similar fields
+- Forget foreign key constraints for related tables
+- Skip unique constraints where business logic requires them
+- Create migrations that conflict with existing ones
+
+## Supabase Migration Best Practices
+
+### ✅ DO:
+- **Follow SQL naming convention**: `YYYYMMDDHHMMSS_descriptive_name.sql`
+- **Review existing patterns** in [app tables](mdc:supabase/migrations/20250622191408_create_app_tables.sql)
+- **Add constraints properly** as seen in [unique constraint migration](mdc:supabase/migrations/20250624142300_add_unique_constraint_clocking_days.sql)
+- **Use RLS (Row Level Security)** for user data protection
+- **Include proper indexes** for performance
+
+```sql
+-- ✅ Good example from existing migration
+ALTER TABLE clocking_days 
+ADD CONSTRAINT unique_user_date UNIQUE (user_id, date);
+```
+
+## Data Consistency Checklist
+
+Before creating new migrations, verify:
+- [ ] **User relationships**: Does it properly reference the `users` table?
+- [ ] **Naming consistency**: Do column names match existing patterns?
+- [ ] **Data types**: Are you using consistent types (e.g., `date` for dates, `time` for times)?
+- [ ] **Constraints**: Are business rules enforced at database level?
+- [ ] **Cascading deletes**: Will deleting a user properly clean up related data?
+
+## Common Patterns in This Project
+
+### User-Related Tables
+```php
+// Pattern from clocking_days table
+$table->foreignId('user_id')->constrained()->onDelete('cascade');
+```
+
+### Date/Time Fields
+```php
+// Pattern for time tracking
+$table->date('date');           // For dates
+$table->time('check_in');       // For time values
+$table->timestamps();           // For created_at/updated_at
+```
+
+### Unique Constraints
+```php
+// Prevent duplicate records
+$table->unique(['user_id', 'date']);
+```
+
+## Testing Migration Changes
+
+1. **Run locally first**: Test migrations on local database
+2. **Check both up and down**: Ensure rollbacks work properly
+3. **Verify data integrity**: Check foreign key relationships
+4. **Test with existing data**: Ensure migrations work with current records
+
+## Related Files
+
+- [ClockingDay Model](mdc:backend/app/Models/ClockingDay.php) - Check model relationships
+- [User Model](mdc:backend/app/Models/User.php) - Understand user structure
+- [Database Config](mdc:backend/config/database.php) - Database configuration
+
+Remember: **Consistency is key**. Always align new migrations with existing patterns and database design decisions.
